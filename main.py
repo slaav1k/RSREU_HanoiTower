@@ -1,16 +1,26 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from hanoi_tower import HanoiTower
+from hanoi_tower_heuristic import HanoiTowerHeuristic
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def main():
+    try:
+        num_disks = int(input("Введите количество дисков: "))
+        if num_disks <= 0:
+            raise ValueError("Количество дисков должно быть положительным.")
+
+        # game = HanoiTower(num_disks)
+        game = HanoiTowerHeuristic(num_disks)
+        print("Начальное состояние:")
+        game.print_state()
+        print("Решение:")
+        game.solve()
+        print(f"Решение завершено. Всего шагов: {game.get_move_count()}")
+
+    except ValueError as e:
+        print(f"Ошибка: {e}")
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    main()
