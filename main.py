@@ -1,5 +1,7 @@
 from hanoi_tower import HanoiTower
 from hanoi_solver import HanoiSolver
+from rod import Rod
+
 
 def main():
     try:
@@ -7,9 +9,19 @@ def main():
         if num_disks <= 0:
             raise ValueError("Количество дисков должно быть положительным.")
 
-        game = HanoiTower(num_disks)
+        rods = {
+            'A': Rod('A'),
+            'B': Rod('B'),
+            'C': Rod('C')
+        }
+
+        for disk in range(num_disks, 0, -1):
+            rods['A'].push(disk)
+
+        # game = HanoiTower(num_disks)
+        game = HanoiTower(rods)
         print("Начальное состояние:")
-        game.print_state()
+        game.print_situation()
 
         solver = HanoiSolver()
         print("Решение:")
