@@ -1,7 +1,6 @@
-from hanoi_tower import HanoiTower
-from hanoi_solver import HanoiSolver
-from rod import Rod
-
+from HanoiTower import HanoiTower, get_next_situations
+from Solver import Solver
+from Rod import Rod
 
 def main():
     try:
@@ -9,25 +8,37 @@ def main():
         if num_disks <= 0:
             raise ValueError("Количество дисков должно быть положительным.")
 
+        num_moves = int(input("Введите максимальное количество шагов: "))
+        if num_moves <= 0:
+            num_moves = 2 ** num_disks - 1
+
         rods = {
             'A': Rod('A'),
             'B': Rod('B'),
             'C': Rod('C')
         }
 
-        for disk in range(num_disks, 0, -1):
-            rods['A'].push(disk)
+        # for disk in range(num_disks, 0, -1):
+        #     rods['A'].push(disk)
 
-        # game = HanoiTower(num_disks)
+        rods['C'].push(3)  # Большой диск снизу
+        rods['A'].push(2)  # Средний диск
+        rods['A'].push(1)  # Малый диск на A
+
         game = HanoiTower(rods)
         print("Начальное состояние:")
         game.print_situation()
 
-        solver = HanoiSolver()
-        print("Решение:")
-        moves = solver.get_solution(game)
-        print(f"Решение завершено. Всего шагов: {game.get_move_count()}")
-        # print("Список шагов:", moves)
+        solver = Solver(max_depth=num_moves)  # Оптимальная глубина для Ханойских башен
+        moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
+
+        if moves:
+            print("Решение найдено:")
+            for i, (source, destination) in enumerate(moves, 1):
+                game.move_disk(source, destination)
+            print(f"Решение завершено. Всего шагов: {game.get_move_count()}")
+        else:
+            print("Решение не найдено в пределах максимальной глубины.")
 
     except ValueError as e:
         print(f"Ошибка: {e}")
