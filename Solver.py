@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional, Any
+from typing import List, Tuple, Optional, Any, Set
 
 class Solver:
     """Универсальный решатель на основе поиска в глубину для задач с состояниями."""
@@ -15,25 +15,42 @@ class Solver:
         Returns:
             Список шагов (например, (source, destination)) или None, если решение не найдено.
         """
-        stack = [(current_situation, [], set([current_situation]), 0)]  # situation, path_moves, path_situations, depth
+        # Стек содержит: (situation, depth, move), где move — последний ход (или None для начального состояния)
+        stack = [(current_situation, 0, None)]
+        visited = {current_situation}  # Множество посещённых состояний
+        path = []  # Текущий путь (список ходов)
+
         while stack:
-            situation, path, path_situations, depth = stack.pop()
+            situation, depth, move = stack.pop()
+
+            # Если это не начальное состояние, добавляем ход в путь
+            if move is not None:
+                path.append(move)
+                visited.add(situation)
 
             # Достигнута целевая ситуация?
             if situation == goal_situation:
-                return path
+                return path.copy()  # Возвращаем копию текущего пути
 
             # Достигли лимита глубины?
             if depth >= self.max_depth:
-                continue  # Тупик
+                if move is not None:
+                    path.pop()  # Откатываем ход
+                    visited.remove(situation)  # Удаляем состояние из посещённых
+                continue
 
-            # Есть другие ходы?
-            for next_situation, move in get_next_situations(situation):
-                # Были ли мы в этой ситуации раньше? (только в текущем пути)
-                if next_situation not in path_situations:
-                    new_path = path + [move]
-                    new_path_situations = path_situations.copy()
-                    new_path_situations.add(next_situation)
-                    stack.append((next_situation, new_path, new_path_situations, depth + 1))
+            # Получаем следующие возможные состояния
+            any_moves_added = False
+            next_situations = get_next_situations(situation)
+            for next_situation, next_move in reversed(next_situations):
+                if next_situation not in visited:
+                    stack.append((next_situation, depth + 1, next_move))
+                    any_moves_added = True
+
+            # Если не добавили новых ходов и это не начальное состояние, откатываем
+            if move is not None and not any_moves_added:
+                path.pop()  # Откатываем ход
+                visited.remove(situation)  # Удаляем состояние
+
 
         return None  # Решение не найдено в пределах глубины
