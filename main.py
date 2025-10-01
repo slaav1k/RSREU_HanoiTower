@@ -22,7 +22,7 @@ def main():
         #     rods['A'].push(disk)
 
         rods['C'].push(3)  # Большой диск снизу
-        rods['A'].push(2)  # Средний диск
+        rods['C'].push(2)  # Средний диск
         rods['A'].push(1)  # Малый диск на A
 
         game = HanoiTower(rods)

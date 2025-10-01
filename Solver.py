@@ -7,7 +7,7 @@ class Solver:
 
     def solve(self, current_situation: Any, goal_situation: Any, get_next_situations: callable) -> Optional[List[Tuple[str, str]]]:
         """
-        Ищет решение с помощью DFS.
+        Ищет решение с помощью поиска в глубину.
         Args:
             current_situation: Текущее состояние (например, кортежи дисков для A, B, C).
             goal_situation: Целевое состояние.
@@ -19,17 +19,17 @@ class Solver:
         while stack:
             situation, path, path_situations, depth = stack.pop()
 
-            # 1. Достигнута целевая ситуация?
+            # Достигнута целевая ситуация?
             if situation == goal_situation:
                 return path
 
-            # 2. Достигли лимита глубины?
+            # Достигли лимита глубины?
             if depth >= self.max_depth:
                 continue  # Тупик
 
-            # 4. Есть другие ходы?
+            # Есть другие ходы?
             for next_situation, move in get_next_situations(situation):
-                # 3. Были ли мы в этой ситуации раньше? (только в текущем пути)
+                # Были ли мы в этой ситуации раньше? (только в текущем пути)
                 if next_situation not in path_situations:
                     new_path = path + [move]
                     new_path_situations = path_situations.copy()
