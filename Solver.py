@@ -1,7 +1,12 @@
+from collections import deque
 from typing import List, Tuple, Optional, Any, Set
 
+from Node import Node
+from Tree import Tree
+
+
 class Solver:
-    """Универсальный решатель на основе поиска в глубину для задач с состояниями."""
+    """Универсальный решатель на основе поиска в глубину (а можно и в ширину) для задач с состояниями."""
     def __init__(self, max_depth: int = 7):
         self.max_depth = max_depth
 
@@ -52,5 +57,43 @@ class Solver:
                 path.pop()
                 visited.remove(situation)
 
+
+        return None
+
+    def solve_wide(self, current_situation: Any, goal_situation: Any, get_next_situations: callable) -> Optional[List[Tuple[str, str]]]:
+        """
+        Ищет решение с помощью поиска в ширину.
+        Args:
+            current_situation: Текущее состояние (например, кортежи дисков для A, B, C).
+            goal_situation: Целевое состояние.
+            get_next_situations: Функция, возвращающая список (next_situation, move) для возможных ходов.
+        Returns:
+            Список шагов (например, (source, destination)) или None, если решение не найдено.
+        """
+        # Инициализация дерева и очереди
+        tree = Tree(current_situation)
+        queue = deque([tree.root])  # Храним узлы дерева
+        visited = {current_situation}  # Множество посещённых состояний
+
+        while queue:
+            current_node = queue.popleft()
+
+            # Достигнута целевая ситуация?
+            if current_node.situation == goal_situation:
+                return tree.get_path_to_node(current_node)
+
+            # Проверка на превышение максимальной глубины
+            if current_node.depth >= self.max_depth:
+                continue
+
+            # Получаем следующие возможные состояния
+            next_situations = get_next_situations(current_node.situation)
+            for next_situation, move in next_situations:
+                if next_situation not in visited:
+                    # Создаём новый узел с увеличенной глубиной
+                    new_node = Node(next_situation, parent=current_node, move=move, depth=current_node.depth + 1)
+                    current_node.add_child(new_node)
+                    visited.add(next_situation)
+                    queue.append(new_node)
 
         return None

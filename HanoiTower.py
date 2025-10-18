@@ -94,7 +94,8 @@ class HanoiTower:
                 self.print_situation()
             else:
                 self.rods[source].push(disk)  # Вернуть диск обратно
-                raise ValueError(f"Нельзя переместить диск {disk} на {destination}: нарушен порядок (нельзя класть больший на меньший).")
+                print(f"Нельзя переместить диск {disk} на {destination}: нарушен порядок (нельзя класть больший на меньший).")
+                # raise ValueError(f"Нельзя переместить диск {disk} на {destination}: нарушен порядок (нельзя класть больший на меньший).")
 
     def print_move(self, disk: int, source: str, destination: str) -> None:
         """Вывести шаг перемещения диска."""

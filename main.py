@@ -18,19 +18,23 @@ def main():
             'C': Rod('C')
         }
 
-        # for disk in range(num_disks, 0, -1):
-        #     rods['A'].push(disk)
+        for disk in range(num_disks, 0, -1):
+            rods['A'].push(disk)
 
-        rods['C'].push(3)  # Большой диск снизу
-        rods['C'].push(2)  # Средний диск
-        rods['A'].push(1)  # Малый диск на A
+        # rods['C'].push(3)  # Большой диск снизу
+        # rods['C'].push(2)  # Средний диск
+        # rods['A'].push(1)  # Малый диск на A
 
         game = HanoiTower(rods)
         print("Начальное состояние:")
         game.print_situation()
 
         solver = Solver(max_depth=num_moves)  # Оптимальная глубина для Ханойских башен
-        moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
+        # moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
+        moves = solver.solve_wide(game.get_situation(), game.target_situation, get_next_situations)
+
+        # После получения moves:
+        print("Путь валиден?", all((s, d) in [(s, d) for _, (s, d) in get_next_situations(game.get_situation())] for s, d in moves))
 
         if moves:
             print("Решение найдено:")
