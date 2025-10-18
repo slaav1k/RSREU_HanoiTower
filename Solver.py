@@ -49,8 +49,8 @@ class Solver:
 
             # Если не добавили новых ходов и это не начальное состояние, откатываем
             if move is not None and not any_moves_added:
-                path.pop()  # Откатываем ход
-                visited.remove(situation)  # Удаляем состояние
+                path.pop()
+                visited.remove(situation)
 
 
-        return None  # Решение не найдено в пределах глубины
+        return None
