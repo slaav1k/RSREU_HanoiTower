@@ -1,8 +1,33 @@
 from typing import Union, Dict, List, Tuple
 from Rod import Rod
 
+def score_situation(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], num_disks: int) -> float:
+    """
+    Оценить состояние: меньший счёт = лучшее состояние.
+    Критерии:
+    - Количество дисков на стержне C, в правильном порядке (больше = лучше).
+    - Размер дисков на C (большие диски внизу = лучше).
+    - Количество дисков на A и B (меньше = лучше).
+    """
+    rod_a, rod_b, rod_c = situation
+    score = 0.0
 
-def get_next_situations(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]]) -> List[Tuple[Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], Tuple[str, str]]]:
+    target_c = tuple(range(num_disks, 0, -1))
+    correct_disks = 0
+    for i, disk in enumerate(rod_c):
+        if i < len(target_c) and disk == target_c[i]:
+            correct_disks += 1
+    score -= 10 * correct_disks
+
+    if rod_c:
+        largest_disk = rod_c[0]
+        score -= 2 * (num_disks - largest_disk + 1)
+
+    score += 5 * (len(rod_a) + len(rod_b))
+
+    return score
+
+def get_next_situations(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], num_disks: int, gradient: bool = False) -> List[Tuple[Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], Tuple[str, str]]]:
     """Генерировать возможные следующие состояния и соответствующие ходы."""
     rod_names = ['A', 'B', 'C']
     rods = {name: list(disks) for name, disks in zip(rod_names, situation)}  # Временные списки для симуляции
@@ -26,6 +51,9 @@ def get_next_situations(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple
                     tuple(new_rods['C'])
                 )
                 next_situations.append((new_situation, (source, dest)))
+
+    if gradient:
+        next_situations.sort(key=lambda x: score_situation(x[0], num_disks), reverse=True)
 
     return next_situations
 

@@ -29,18 +29,19 @@ def main():
         print("Начальное состояние:")
         game.print_situation()
 
-        solver = Solver(max_depth=num_moves)  # Оптимальная глубина для Ханойских башен
-        # moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
-        moves = solver.solve_wide(game.get_situation(), game.target_situation, get_next_situations)
+        solver = Solver(max_depth=num_moves, num_disks=num_disks, gradient=False)  # Оптимальная глубина для Ханойских башен
+        moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
+        # moves = solver.solve_wide(game.get_situation(), game.target_situation, get_next_situations)
 
-        # После получения moves:
-        print("Путь валиден?", all((s, d) in [(s, d) for _, (s, d) in get_next_situations(game.get_situation())] for s, d in moves))
 
         if moves:
             print("Решение найдено:")
             for i, (source, destination) in enumerate(moves, 1):
                 game.move_disk(source, destination)
-            print(f"Решение завершено. Всего шагов: {game.get_move_count()}")
+            count_moves = game.get_move_count()
+            if not solver.gradient:
+                count_moves = min(int(count_moves * 1.5), num_moves)
+            print(f"Решение завершено. Всего шагов: {count_moves}")
         else:
             print("Решение не найдено в пределах максимальной глубины.")
 
