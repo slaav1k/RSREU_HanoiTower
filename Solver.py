@@ -1,3 +1,18 @@
+"""
+Solver.py
+==========
+Дата: 08.11.2025
+Разработчик: Архипкин Вячеслав
+==========
+Описание:
+---------
+Универсальный решатель задач поиска в пространстве состояний.
+Реализует стратегии:
+1. Поиск в глубину
+2. Поиск в ширину
+3. Ветви и границы
+"""
+
 import heapq
 from collections import deque
 from ctypes.wintypes import MAX_PATH
@@ -131,7 +146,7 @@ class Solver:
         return None
 
     def solve_branches_and_bounds(self, current_situation: Any, goal_situation: Any, get_next_situations: callable) -> \
-    Optional[List[Tuple[str, str]]]:
+            Optional[List[Tuple[str, str]]]:
         """
         Ищет решение с стратегии ветвей и границ.
         Args:
@@ -148,8 +163,8 @@ class Solver:
         heapq.heappush(queue, (start_h, 0, tree.root))  # (f, g, node) упорядочиваем узлы
 
         visited = {current_situation: 0}  # Множество посещённых состояний
-        best_cost = MAX_PATH # длина кратчайшего пути
-        goal_node = None # узел с целевой ситуацией
+        best_cost = MAX_PATH  # длина кратчайшего пути
+        goal_node = None  # узел с целевой ситуацией
 
         # g - текущее количество шагов от начального состояния,
         # для ханойской башни где каждый шаг равноценный - бесмысленно,

@@ -1,5 +1,17 @@
+"""
+HanoiTower.py
+==========
+Дата: 08.11.2025
+Разработчик: Архипкин Вячеслав
+==========
+Описание:
+---------
+Модуль, реализующий логику игры Ханойская башня
+"""
+
 from typing import Union, Dict, List, Tuple
 from Rod import Rod
+
 
 def score_situation(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], num_disks: int) -> float:
     """
@@ -22,7 +34,10 @@ def score_situation(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int
 
     return score
 
-def get_next_situations(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], num_disks: int, gradient: bool = False) -> List[Tuple[Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], Tuple[str, str]]]:
+
+def get_next_situations(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], num_disks: int,
+                        gradient: bool = False) -> List[
+    Tuple[Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]], Tuple[str, str]]]:
     """Генерировать возможные следующие состояния и соответствующие ходы."""
     rod_names = ['A', 'B', 'C']
     rods = {name: list(disks) for name, disks in zip(rod_names, situation)}  # Временные списки для симуляции
@@ -55,6 +70,7 @@ def get_next_situations(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple
 
 class HanoiTower:
     """Класс, реализующий игру Ханойские башни."""
+
     def __init__(self, num_disks_or_rods: Union[int, Dict[str, Rod]]) -> None:
         """
         Инициализация игры Ханойские башни.
@@ -99,12 +115,14 @@ class HanoiTower:
             disks = rod.disks
             # Проверка порядка: должен быть убывающим (большой снизу [начало списка], малый сверху [конец])
             if disks and disks != sorted(disks, reverse=True):
-                raise ValueError(f"Диски на стержне {rod.name} не в правильном порядке: должны быть от большого к малому снизу вверх.")
+                raise ValueError(
+                    f"Диски на стержне {rod.name} не в правильном порядке: должны быть от большого к малому снизу вверх.")
             all_disks.extend(disks)
 
         # Проверка уникальности и полноты
         if sorted(all_disks) != list(range(1, self.num_disks + 1)):
-            raise ValueError("Не все диски присутствуют, есть дубликаты или неверные значения (должны быть от 1 до num_disks).")
+            raise ValueError(
+                "Не все диски присутствуют, есть дубликаты или неверные значения (должны быть от 1 до num_disks).")
 
     def move_disk(self, source: str, destination: str) -> None:
         """Переместить диск с одного стержня на другой."""
@@ -117,7 +135,8 @@ class HanoiTower:
                 self.print_situation()
             else:
                 self.rods[source].push(disk)  # Вернуть диск обратно
-                print(f"Нельзя переместить диск {disk} на {destination}: нарушен порядок (нельзя класть больший на меньший).")
+                print(
+                    f"Нельзя переместить диск {disk} на {destination}: нарушен порядок (нельзя класть больший на меньший).")
                 # raise ValueError(f"Нельзя переместить диск {disk} на {destination}: нарушен порядок (нельзя класть больший на меньший).")
 
     def print_move(self, disk: int, source: str, destination: str) -> None:
@@ -152,4 +171,3 @@ class HanoiTower:
             tuple(self.rods['B'].disks),
             tuple(self.rods['C'].disks)
         )
-
