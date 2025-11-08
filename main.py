@@ -29,9 +29,10 @@ def main():
         print("Начальное состояние:")
         game.print_situation()
 
-        solver = Solver(max_depth=num_moves, num_disks=num_disks, gradient=False)
+        solver = Solver(max_depth=num_moves, num_disks=num_disks, gradient=True)
         # moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
         moves = solver.solve_wide(game.get_situation(), game.target_situation, get_next_situations)
+        # moves = solver.solve_branches_and_bounds(game.get_situation(), game.target_situation, get_next_situations)
 
 
         if moves:

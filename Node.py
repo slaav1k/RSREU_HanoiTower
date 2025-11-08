@@ -2,6 +2,8 @@ from typing import Any, Optional, Tuple
 
 
 class Node:
+    _id_counter = 0
+
     def __init__(self, situation: Any, parent: Optional['Node'] = None, move: Optional[Tuple[str, str]] = None,
                  depth: int = 0):
         """
@@ -16,6 +18,8 @@ class Node:
         self.depth = depth
         self.move = move
         self.situation = situation
+        self.id = Node._id_counter
+        Node._id_counter += 1
 
 
 
@@ -28,3 +32,7 @@ class Node:
         :return: Ничего
         """
         self.children.append(child)
+
+
+    def __lt__(self, other: 'Node') -> bool:
+        return self.id < other.id
