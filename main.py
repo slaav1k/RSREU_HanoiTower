@@ -29,9 +29,9 @@ def main():
         print("Начальное состояние:")
         game.print_situation()
 
-        solver = Solver(max_depth=num_moves, num_disks=num_disks, gradient=False)  # Оптимальная глубина для Ханойских башен
-        moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
-        # moves = solver.solve_wide(game.get_situation(), game.target_situation, get_next_situations)
+        solver = Solver(max_depth=num_moves, num_disks=num_disks, gradient=False)
+        # moves = solver.solve(game.get_situation(), game.target_situation, get_next_situations)
+        moves = solver.solve_wide(game.get_situation(), game.target_situation, get_next_situations)
 
 
         if moves:

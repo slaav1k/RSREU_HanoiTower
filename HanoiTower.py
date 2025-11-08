@@ -6,7 +6,6 @@ def score_situation(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int
     Оценить состояние: меньший счёт = лучшее состояние.
     Критерии:
     - Количество дисков на стержне C, в правильном порядке (больше = лучше).
-    - Размер дисков на C (большие диски внизу = лучше).
     - Количество дисков на A и B (меньше = лучше).
     """
     rod_a, rod_b, rod_c = situation
@@ -18,10 +17,6 @@ def score_situation(situation: Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int
         if i < len(target_c) and disk == target_c[i]:
             correct_disks += 1
     score -= 10 * correct_disks
-
-    if rod_c:
-        largest_disk = rod_c[0]
-        score -= 2 * (num_disks - largest_disk + 1)
 
     score += 5 * (len(rod_a) + len(rod_b))
 
