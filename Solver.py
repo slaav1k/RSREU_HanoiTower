@@ -16,7 +16,7 @@ Solver.py
 import heapq
 from collections import deque
 from ctypes.wintypes import MAX_PATH
-from typing import List, Tuple, Optional, Any, Set
+from typing import List, Tuple, Optional, Any
 
 from Node import Node
 from Tree import Tree
@@ -175,10 +175,6 @@ class Solver:
         while queue:
             f, g, current_node = heapq.heappop(queue)
 
-            # Если уже нашли путь короче — пропускаем
-            if g > visited.get(current_node.situation, MAX_PATH):
-                continue
-
             # Достигнута целевая ситуация? Если да, а вдруг есть путь короче?
             if current_node.situation == goal_situation:
                 if g < best_cost:
@@ -220,3 +216,79 @@ class Solver:
                 heapq.heappush(queue, (f_new, new_g, new_node))
 
         return tree.get_path_to_node(goal_node) if goal_node else None
+
+    def disk_cost_function(situation: Tuple[tuple, tuple, tuple], move: Tuple[str, str]):
+        """
+        Стоимость хода = размер диска, который перемещаем (верхний на исходном стержне)
+        """
+        from_stick = move[0]  # 'A', 'B', или 'C'
+        sticks = {'A': situation[0], 'B': situation[1], 'C': situation[2]}
+        disk_stack = sticks[from_stick]
+        if not disk_stack:
+            return 0  # невозможно, но на всякий
+        return disk_stack[-1]  # верхний диск = тот, который движется
+
+    def solve_uniform_cost(self, current_situation: Any, goal_situation: Any, get_next_situations: callable,
+                           cost_function: callable = None) -> Optional[List[Tuple[str, str]]]:
+        """
+        Стратегия равных цен (Uniform Cost Search) — оптимальный поиск кратчайшего пути.
+        Поддерживает произвольную стоимость хода через cost_function.
+        """
+        if cost_function is None:
+            cost_function = lambda situation, move: 1  # обычная стоимость = 1
+
+        tree = Tree(current_situation)
+        root = tree.root
+
+        # Приоритетная очередь: (cost_so_far, counter, node)
+        queue = []
+        counter = 0
+        heapq.heappush(queue, (0, counter, root))
+
+        # Ключ: состояние → минимальная известная стоимость до него
+        came_from_cost = {current_situation: 0}
+        # Ключ: состояние → лучший узел (по стоимости)
+        best_node_for_state = {current_situation: root}
+
+        while queue:
+            current_cost, _, current_node = heapq.heappop(queue)
+
+            # Важно: если мы достали узел с устаревшей (не лучшей) стоимостью — игнорируем
+            if current_cost > came_from_cost[current_node.situation]:
+                continue
+
+            if current_node.situation == goal_situation:
+                return tree.get_path_to_node(current_node)
+
+            if current_node.depth >= self.max_depth:
+                continue
+
+            for next_situation, move in get_next_situations(
+                    current_node.situation, num_disks=self.num_disks, gradient=self.gradient
+            ):
+                # Считаем стоимость этого хода
+                step_cost = cost_function(current_node.situation, move)
+                # step_cost = 1
+                new_cost = current_cost + step_cost
+
+                # Если уже есть лучший или равный путь — пропускаем
+                if next_situation in came_from_cost and new_cost >= came_from_cost[next_situation]:
+                    continue
+
+                # Нашли лучший путь до next_situation!
+                new_node = Node(
+                    situation=next_situation,
+                    parent=current_node,
+                    move=move,
+                    depth=current_node.depth + 1
+                )
+                current_node.add_child(new_node)
+
+                # Обновляем информацию
+                came_from_cost[next_situation] = new_cost
+                best_node_for_state[next_situation] = new_node
+
+                counter += 1
+                heapq.heappush(queue, (new_cost, counter, new_node))
+
+        return None
