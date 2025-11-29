@@ -225,14 +225,13 @@ class Solver:
         sticks = {'A': situation[0], 'B': situation[1], 'C': situation[2]}
         disk_stack = sticks[from_stick]
         if not disk_stack:
-            return 0  # невозможно, но на всякий
-        return disk_stack[-1]  # верхний диск = тот, который движется
+            return 0
+        return disk_stack[-1]
 
     def solve_uniform_cost(self, current_situation: Any, goal_situation: Any, get_next_situations: callable,
                            cost_function: callable = None) -> Optional[List[Tuple[str, str]]]:
         """
-        Стратегия равных цен (Uniform Cost Search) — оптимальный поиск кратчайшего пути.
-        Поддерживает произвольную стоимость хода через cost_function.
+        Стратегия равных цен
         """
         if cost_function is None:
             cost_function = lambda situation, move: 1  # обычная стоимость = 1
@@ -253,7 +252,6 @@ class Solver:
         while queue:
             current_cost, _, current_node = heapq.heappop(queue)
 
-            # Важно: если мы достали узел с устаревшей (не лучшей) стоимостью — игнорируем
             if current_cost > came_from_cost[current_node.situation]:
                 continue
 
@@ -275,7 +273,7 @@ class Solver:
                 if next_situation in came_from_cost and new_cost >= came_from_cost[next_situation]:
                     continue
 
-                # Нашли лучший путь до next_situation!
+                # Иначе
                 new_node = Node(
                     situation=next_situation,
                     parent=current_node,
