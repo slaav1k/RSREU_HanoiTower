@@ -8,6 +8,7 @@ main.py
 ---------
 Точка входа в приложение «Ханойская башня»
 """
+from itertools import count
 
 from HanoiTower import HanoiTower, get_next_situations
 from Solver import Solver
@@ -59,6 +60,7 @@ def main():
         moves = solver.solve_uniform_cost(game.get_situation(), game.target_situation, get_next_situations)
 
 
+        count_moves = 0
         if moves:
             print("Решение найдено:")
             for i, (source, destination) in enumerate(moves, 1):
@@ -69,6 +71,13 @@ def main():
             print(f"Решение завершено. Всего шагов: {count_moves}")
         else:
             print("Решение не найдено в пределах максимальной глубины.")
+
+        D, N, R = solver.get_statistics(count_moves)
+        print({"Глубина поиска D": D,
+            "Длина пути решения L": count_moves,
+            "Общее число порождённых вершин N": N,
+            "Разветвлённость поиска R = N/L": round(R, 3) if R != float('inf') else "∞"
+        })
 
     except ValueError as e:
         print(f"Ошибка: {e}")

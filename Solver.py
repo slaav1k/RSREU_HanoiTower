@@ -27,9 +27,13 @@ class Solver:
     MAX_PATH = float('inf')
 
     def __init__(self, max_depth: int = 7, num_disks=3, gradient=False):
+        self.solution_depth = None
+        self.search_depth = None
         self.max_depth = max_depth
         self.num_disks = num_disks
         self.gradient = gradient
+        self.generated_nodes = 0
+        self.reset_stats()
 
     def _heuristic(self, situation):
         """
@@ -61,6 +65,7 @@ class Solver:
         Returns:
             Список шагов (например, (source, destination)) или None, если решение не найдено.
         """
+        self.reset_stats()
         # Стек содержит: (situation, depth, move), где move — последний ход (или None для начального состояния)
         # stack = [(current_situation, 0, None)]
         stack = [(current_situation, [], 0)]
@@ -80,6 +85,9 @@ class Solver:
             if situation == goal_situation:
                 return path.copy()  # Возвращаем копию текущего пути
 
+            # Обновляем максимальную достигнутую глубину
+            self.search_depth = max(self.search_depth, depth)
+
             # Достигли лимита глубины?
             if depth >= self.max_depth:
                 # if move is not None:
@@ -91,6 +99,7 @@ class Solver:
             any_moves_added = False
             next_situations = get_next_situations(situation, num_disks=self.num_disks, gradient=self.gradient)
             for next_situation, next_move in next_situations:
+                self.generated_nodes += 1
                 if next_situation not in visited:
                     visited.add(next_situation)
                     new_path = path + [next_move]  # копия пути + новый ход
@@ -116,6 +125,7 @@ class Solver:
         Returns:
             Список шагов (например, (source, destination)) или None, если решение не найдено.
         """
+        self.reset_stats()
         # Инициализация дерева и очереди
         tree = Tree(current_situation)
         queue = deque([tree.root])  # Храним узлы дерева
@@ -128,6 +138,9 @@ class Solver:
             if current_node.situation == goal_situation:
                 return tree.get_path_to_node(current_node)
 
+            # Обновляем максимальную достигнутую глубину
+            self.search_depth = max(self.search_depth, current_node.depth)
+
             # Проверка на превышение максимальной глубины
             if current_node.depth >= self.max_depth:
                 continue
@@ -136,6 +149,7 @@ class Solver:
             next_situations = get_next_situations(current_node.situation, num_disks=self.num_disks,
                                                   gradient=self.gradient)
             for next_situation, move in next_situations:
+                self.generated_nodes += 1
                 if next_situation not in visited:
                     # Создаём новый узел с увеличенной глубиной
                     new_node = Node(next_situation, parent=current_node, move=move, depth=current_node.depth + 1)
@@ -156,6 +170,7 @@ class Solver:
         Returns:
             Список шагов (например, (source, destination)) или None, если решение не найдено.
         """
+        self.reset_stats()
         # Инициализация дерева и очереди
         tree = Tree(current_situation)
         queue = []  # храним узлы в приоритетной очереди
@@ -187,6 +202,9 @@ class Solver:
             if best_cost != MAX_PATH and f >= best_cost:
                 continue
 
+            # Обновляем максимальную достигнутую глубину
+            self.search_depth = max(self.search_depth, current_node.depth)
+
             # Проверка на превышение максимальной глубины
             if g >= self.max_depth:
                 continue
@@ -195,6 +213,7 @@ class Solver:
             next_situations = get_next_situations(current_node.situation, num_disks=self.num_disks,
                                                   gradient=self.gradient)
             for next_situation, move in next_situations:
+                self.generated_nodes += 1
                 new_g = g + 1
 
                 # Уже были с меньшим g?
@@ -233,6 +252,7 @@ class Solver:
         """
         Стратегия равных цен
         """
+        self.reset_stats()
         if cost_function is None:
             cost_function = lambda situation, move: 1  # обычная стоимость = 1
 
@@ -258,12 +278,16 @@ class Solver:
             if current_node.situation == goal_situation:
                 return tree.get_path_to_node(current_node)
 
+            # Обновляем максимальную достигнутую глубину
+            self.search_depth = max(self.search_depth, current_node.depth)
+
             if current_node.depth >= self.max_depth:
                 continue
 
             for next_situation, move in get_next_situations(
                     current_node.situation, num_disks=self.num_disks, gradient=self.gradient
             ):
+                self.generated_nodes += 1
                 # Считаем стоимость этого хода
                 step_cost = cost_function(current_node.situation, move)
                 # step_cost = 1
@@ -290,3 +314,18 @@ class Solver:
                 heapq.heappush(queue, (new_cost, counter, new_node))
 
         return None
+
+    def get_statistics(self, L) -> Tuple:
+        """
+        Возвращает словарь со всеми требуемыми характеристиками поиска.
+        """
+        D = self.search_depth
+        N = self.generated_nodes
+        R = N / L if L and L > 0 else float('inf')
+
+        return (D, N, R)
+
+    def reset_stats(self):
+        self.generated_nodes = 0
+        self.solution_depth = None
+        self.search_depth = 0
